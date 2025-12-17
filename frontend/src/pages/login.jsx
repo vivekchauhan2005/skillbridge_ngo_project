@@ -1,86 +1,157 @@
-import { Link, useNavigate } from "react-router-dom";
-import illustration from "../assets/signup-illustration.png";
-import logo from "../assets/image.png";
+import React, { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-function Login() {
+import logo from "../assets/logo.svg";
+import illustration from "../assets/illustration.png";
+import mailIcon from "../assets/mail.svg";
+import lockIcon from "../assets/lock.svg";
+import eyeIcon from "../assets/eye.svg";
+
+const Login = () => {
   const navigate = useNavigate();
 
-  const handleLogin = () => {
-    const email = document.getElementById("loginEmail").value;
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
-    // Save email for navbar
-    localStorage.setItem("userEmail", email);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    navigate("/home");
+    console.log("LOGIN DATA BEING SENT:", { email, password });
+
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/api/auth/login",
+        { email, password }
+      );
+
+      console.log("LOGIN RESPONSE:", response.data);
+
+      const { token, user } = response.data;
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+
+      // Navigate based on role
+      if (user.role === "NGO") {
+        navigate("/profile/ngo");
+      } else if (user.role === "Volunteer") {
+        navigate("/profile/volunteer");
+      } else {
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      console.error("LOGIN ERROR:", error.response?.data);
+      alert(error.response?.data?.message || "Login failed");
+    }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center 
-                    bg-gradient-to-br from-[#E3F5F9] via-[#D8F0F4] to-[#CBE7EF] 
-                    px-6 relative">
+    <div className="min-h-screen bg-[#E9F5F8] flex items-center justify-center px-4 sm:px-8 lg:px-10">
 
-      {/* Logo + Name Top Right */}
-      <div className="absolute top-6 right-6 flex items-center space-x-2">
-        <img src={logo} alt="SkillBridge Logo" className="w-12 h-auto drop-shadow-md" />
-        <span className="text-2xl font-bold" style={{ color: "#183B56" }}>
-          SkillBridge
-        </span>
+      {/* Top Logo */}
+      <div className="absolute top-4 right-4 sm:top-6 sm:right-10 flex items-center gap-3">
+        <img src={logo} alt="SkillBridge" className="h-12 sm:h-14 w-auto" />
       </div>
 
-      <div className="w-full max-w-5xl bg-white shadow-xl rounded-2xl 
-                      grid grid-cols-1 md:grid-cols-2 overflow-hidden 
-                      border border-gray-200">
+      <div className="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-10 lg:gap-16 items-center">
 
-        {/* Form Section */}
-        <div className="flex flex-col justify-center p-10">
+        {/* Login Card */}
+        <div className="bg-white rounded-2xl shadow-xl px-6 sm:px-8 lg:px-10 py-8 sm:py-10 w-full max-w-xl mx-auto">
 
-          {/* Title */}
-          <h2 className="text-3xl font-semibold text-gray-800 mb-2">
-            Login to your NGO Account
+          <h2 className="text-2xl sm:text-3xl font-bold text-[#183B56]">
+            Login to Your Account
           </h2>
 
-          {/* Newly Added Paragraph (Proper Spacing) */}
-          <p className="text-gray-500 mb-8">
-            Access Skillbridge to manage NGO projects and volunteers.
+          <p className="text-slate-600 mt-3 mb-8 sm:mb-10">
+            Access SkillBridge to manage NGOs and volunteers
           </p>
 
-          {/* Inputs */}
-          <input
-            id="loginEmail"
-            type="email"
-            placeholder="Enter your email"
-            className="w-full mb-4 px-4 py-3 border border-[#6EC0CE] rounded-lg"
-          />
+          <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-7">
 
-          <input
-            type="password"
-            placeholder="Enter your password"
-            className="w-full mb-4 px-4 py-3 border border-[#6EC0CE] rounded-lg"
-          />
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Email
+              </label>
+              <div className="flex items-center border rounded-xl px-4 py-3 gap-3">
+                <img src={mailIcon} alt="" className="h-5" />
+                <input
+                  type="email"
+                  required
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full outline-none text-sm"
+                />
+              </div>
+            </div>
 
-          {/* Button */}
-          <button
-            onClick={handleLogin}
-            className="w-full bg-[#FF7A30] hover:bg-[#E86820] text-white py-3 rounded-lg transition shadow-md"
-          >
-            Login
-          </button>
+            {/* Password */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">
+                Password
+              </label>
 
-          <p className="text-sm mt-4" style={{ color: "#2D4A60" }}>
-            Don’t have an account?{" "}
-            <Link to="/signup" className="font-semibold" style={{ color: "#6EC0CE" }}>
+              <div className="flex items-center border rounded-xl px-3 py-2.5 gap-3">
+                <img src={lockIcon} alt="" className="h-4" />
+
+                <input
+                  type={showPassword ? "text" : "password"}
+                  required
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full outline-none text-sm"
+                />
+
+                <img
+                  src={eyeIcon}
+                  alt="Toggle password visibility"
+                  className="h-4 opacity-70 cursor-pointer"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                />
+              </div>
+            </div>
+
+            <div
+              className="text-left text-sm cursor-pointer"
+              style={{ color: "#6EC0CE" }}
+            >
+              Forgot password?
+            </div>
+
+            <button
+              type="submit"
+              className="w-full bg-[#FF7A30] hover:bg-[#e96a24] text-white py-3 sm:py-4 rounded-xl font-semibold text-base sm:text-lg transition"
+            >
+              Login
+            </button>
+          </form>
+
+          <p className="text-center text-slate-600 mt-6 sm:mt-8">
+            Don't have an account?{" "}
+            <span
+              onClick={() => navigate("/signup")}
+              className="font-medium cursor-pointer hover:underline"
+              style={{ color: "#6EC0CE" }}
+            >
               Sign up
-            </Link>
+            </span>
           </p>
         </div>
 
-        {/* Illustration Section */}
-        <div className="hidden md:flex items-center justify-center bg-[#E3F5F9] p-6">
-          <img src={illustration} alt="illustration" className="w-4/5 max-w-sm drop-shadow-lg" />
+        {/* Illustration */}
+        <div className="hidden lg:flex relative w-full h-full items-center justify-center">
+          <img
+            src={illustration}
+            alt="Login Illustration"
+            className="w-full max-w-2xl"
+          />
         </div>
       </div>
     </div>
   );
-}
+};
 
 export default Login;

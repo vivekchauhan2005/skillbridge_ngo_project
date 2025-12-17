@@ -1,30 +1,30 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import logo from "../assets/image.png";
+import logo from "../assets/logo.svg";
 
 const Header = () => {
   const navigate = useNavigate();
-  const [userEmail, setUserEmail] = useState(null);
 
-  useEffect(() => {
+  // ✅ Initialize state directly (instead of useEffect)
+  const [userEmail, setUserEmail] = useState(() => {
     const email = localStorage.getItem("userEmail");
-    if (email) setUserEmail(email.split("@")[0]);
-  }, []);
+    return email ? email.split("@")[0] : null;
+  });
 
   const logout = () => {
     localStorage.removeItem("userEmail");
     localStorage.removeItem("token");
     setUserEmail(null);
-    navigate("/home");
+    navigate("/");
   };
 
   return (
     <header className="sticky top-0 bg-[#64B4C8] shadow-md z-50">
-      <div className="container mx-auto px-6 py-4 flex justify-between items-center">
+      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
 
         <div className="flex items-center space-x-2">
-          <img src={logo} className="h-12" />
-          <h1 className="text-2xl font-bold text-[#183B56]">SkillBridge</h1>
+          <img src={logo} className="h-12 w-auto block"
+  draggable="false" />
         </div>
 
         <nav className="hidden md:flex space-x-8 text-[#183B56] font-medium">

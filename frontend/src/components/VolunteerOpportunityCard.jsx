@@ -9,13 +9,19 @@ const truncateText = (text, limit = 20) => {
     : text;
 };
 
-const VolunteerOpportunityCard = ({ opportunity, onViewDetails, onApply }) => {
+const VolunteerOpportunityCard = ({
+  opportunity,
+  onViewDetails,
+  onApply,
+  hasApplied,
+}) => {
   const isOpen = opportunity.status === "Open";
-  const inprogress = opportunity.status === "In Progress";
-  return (
-    <div className="bg-white border rounded-xl p-6 shadow-sm hover:shadow-md transition flex justify-between gap-6">
+  const inProgress = opportunity.status === "In Progress";
 
-      {/* LEFT */}
+  return (
+    <div className="bg-white border rounded-xl p-6 shadow-sm hover:shadow-md transition flex flex-col md:flex-row justify-between gap-6">
+
+      {/* LEFT SECTION */}
       <div className="flex-1">
         <h3 className="text-xl font-bold text-gray-900">
           {opportunity.title}
@@ -41,7 +47,7 @@ const VolunteerOpportunityCard = ({ opportunity, onViewDetails, onApply }) => {
           ))}
         </div>
 
-        {/* META WITH ICONS */}
+        {/* META INFO */}
         <div className="flex flex-wrap gap-6 text-sm font-medium text-[#2D4A60] mt-4">
           <div className="flex items-center gap-2">
             <FaMapMarkerAlt className="text-[#6EC0CE]" />
@@ -67,23 +73,31 @@ const VolunteerOpportunityCard = ({ opportunity, onViewDetails, onApply }) => {
         </button>
       </div>
 
-      {/* RIGHT */}
+      {/* RIGHT SECTION */}
       <div className="flex flex-col items-end justify-between">
         <span
           className={`px-4 py-1 rounded-full text-xs font-semibold ${
-            isOpen 
+            isOpen
               ? "bg-green-100 text-green-700"
-              : inprogress 
-                ? "bg-yellow-100 text-yellow-700"
-                : "bg-red-100 text-red-700"
+              : inProgress
+              ? "bg-yellow-100 text-yellow-700"
+              : "bg-red-100 text-red-700"
           }`}
         >
           {opportunity.status}
         </span>
 
-        {isOpen | inprogress ?  (
+        {/* APPLY / APPLIED BUTTON */}
+        {hasApplied ? (
           <button
-            onClick={() => onApply(opportunity)}
+            disabled
+            className="mt-6 px-5 py-2 bg-gray-300 text-gray-600 rounded-md cursor-not-allowed"
+          >
+            Applied
+          </button>
+        ) : isOpen || inProgress ? (
+          <button
+            onClick={() => onApply(opportunity._id)}
             className="mt-6 px-5 py-2 bg-[#FF7A30] text-white rounded-md hover:bg-[#e86a22]"
           >
             Apply

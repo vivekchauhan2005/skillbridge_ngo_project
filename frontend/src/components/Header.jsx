@@ -5,7 +5,7 @@ import logo from "../assets/logo.svg";
 const Header = () => {
   const navigate = useNavigate();
 
-  // ✅ Initialize state directly (instead of useEffect)
+ 
   const [userEmail, setUserEmail] = useState(() => {
     const email = localStorage.getItem("userEmail");
     return email ? email.split("@")[0] : null;
